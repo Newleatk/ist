@@ -1,0 +1,33 @@
+{% macro issues_status(tag) %}
+    <a href="{{ path("issues", {tag: tag.label}) }}" title="{{ tag.description }}" class="label issue-status has-tooltip" style="background-color: #{{ tag.color }}; color: #{{ tag.contrast }};"><i class="issue-icon issue-issue_{{ tag.label }}"></i>{{ tag.name }}<div class="tooltip issue-label-tooltip">Click to see all issues with tag {{ tag.name }}</div></a>
+{% endmacro %}
+{% macro list_issues(issues, global_start) %}
+    {% from _self import issues_status as issues_status %}
+    {% if issues is not empty %}
+        <table class="issues">
+            <tr>
+                <th><i class="icon-priority-label priority-icon"></i></th>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Report</th>
+            </tr>
+            {% for id in issues|keys %}
+                {% set issue = issues[id] %}
+                <tr{% if issue.deadline_has_passed == true %} class="overdue"{% endif %} data-href="{{ path('issue', {id: id}) }}">
+                    <td class="has-tooltip"><i class="icon-priority-{{ issue.priority }} priority-icon"></i><div class="tooltip">{{ issue.priority }}</div></td>
+                    <td class="id">{{ id }}</td>
+                    <td>{{ issue.title }}</td>
+                    <td>{{ issues_status(issue.status) }}</td>
+                    <td class="td-deadline">{{ issue.deadline|date("d/m/Y", "Europe/Paris") }}</td>
+                    <td>{{ global_start }}{{ id }} opened {{ issue.formated }} by {{ issue.author.name }} {{ issue.author.last_name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <table class="issues empty">
+            <tr><td>No issues to display</td></tr>
+        </table>
+    {% endif %}
+{% endmacro %}

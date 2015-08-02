@@ -1,0 +1,15 @@
+{% extends "base.twig" %}
+{% block title %}Issues{% if tag is defined %} tagged {{ tag }}{% endif %}{% endblock %}
+{% block body %}
+    {% from "ui.twig" import search_bar as search_bar  %}
+    {{ search_bar("issues", null, null, null, null) }}
+    {% from "issues-functions.twig" import list_issues as list_issues  %}
+    <div class="container">
+        {{ list_issues(issues, global_start) }}
+        {% from "ui.twig" import pagination as pagination  %}
+        {{ pagination("issues", params, params.page, params.show, issues_count, true, show_allowed) }}
+    </div>
+{% endblock %}
+    {% from "ui.twig" import pagination_status as pagination_status  %}
+    {% block footer %}<div>{{ pagination_status(params.page, params.show, issues_count) }} issues visible out of {{ issues_count }} issues in {{ time_elapsed }}s</div>
+{% endblock %}

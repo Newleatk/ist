@@ -1,0 +1,94 @@
+{% macro menu(navigation, menu_id, view) %}
+    <ul id="{{ menu_id }}">
+        {% for item in navigation %}
+            <li{% if item.children is defined %} class="dropdown-wrapper has-dropdown"{% endif %}>
+                <a href="{% if item.params is defined %}{{ path(item.url, item.params) }}{% else %}{{ path(item.url) }}{% endif %}" {% if item.url == current_page_name and view == true %}class="active"{% endif %}>{{ item.text }}</a>
+                {% if item.children is defined %}
+                    <i class="fa fa-caret-down dropdown-arrow dropdown-button"></i>
+                    {{ _self.menu(item.children, null, false) }}
+                {% endif %}
+            </li>
+            {% if item.separator is defined and item.separator == true %}
+                <li class="separator"></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endmacro %}
+{% macro pagination(paginationPath, params, currentPage, results_per_page, total, number_results, number_results_list) %}
+    {% set lastPage = (total/results_per_page)|round(0, 'ceil') %}
+    {% set showAlwaysFirstAndLast = true %}
+    {% spaceless %}
+        <div class="pagination{% if number_results == true %} has_pagination_show_choice{% endif %}">
+            {# the number of first and last pages to be displayed #}
+            {% set extremePagesLimit = 2 %}
+            {# the number of pages that are displayed around the active page #}
+            {% set nearbyPagesLimit = 2 %}
+                {% if currentPage > 1 %}
+                    <a class="previous" href="{{ path(paginationPath, params|merge({show: results_per_page, page: currentPage-1})) }}">Previous</a>
+
+                    {% for i in range(1, extremePagesLimit) if ( i < currentPage - nearbyPagesLimit ) %}
+                        <a class="" href="{{ path(paginationPath, params|merge({show: results_per_page, page: i})) }}">{{ i }}</a>
+                    {% endfor %}
+
+                    {% if extremePagesLimit + 1 < currentPage - nearbyPagesLimit %}
+                        <span class="sep-dots">...</span>
+                    {% endif %}
+
+                    {% for i in range(currentPage-nearbyPagesLimit, currentPage-1) if ( i > 0 ) %}
+                        <a class="" href="{{ path(paginationPath, params|merge({show: results_per_page, page: i})) }}">{{ i }}</a>
+                    {% endfor %}
+                {% elseif showAlwaysFirstAndLast %}
+                    <span class="previous disabled">Previous</span>
+                {% endif %}
+
+                <a class="active">{{ currentPage }}</a>
+
+                {% if currentPage < lastPage %}
+                    {% for i in range(currentPage+1, currentPage + nearbyPagesLimit) if ( i <= lastPage ) %}
+                        <a class="" href="{{ path(paginationPath, params|merge({show: results_per_page, page: i})) }}">{{ i }}</a>
+                    {% endfor %}
+
+                    {% if  (lastPage - extremePagesLimit) > (currentPage + nearbyPagesLimit) %}
+                        <span class="sep-dots">...</span>
+                    {% endif %}
+
+                    {% for i in range(lastPage - extremePagesLimit+1, lastPage) if ( i > currentPage + nearbyPagesLimit ) %}
+                        <a class="" href="{{ path(paginationPath, params|merge({show: results_per_page, page: i})) }}">{{ i }}</a>
+                    {% endfor %}
+
+                    <a class="next" href="{{ path(paginationPath, params|merge({show: results_per_page, page: currentPage+1})) }}">Next</a>
+                {% elseif showAlwaysFirstAndLast %}
+                    <span class="next disabled">Next</span>
+                {% endif %}
+        {% if number_results == true %}
+            <div class="pagination-dropdown-wrapper dropdown-wrapper">
+                <a href="javascript:void(0)" class="dropdown-button pagination-results results-per-page dropdown-show-label">
+                    Show <b>{{ results_per_page }}</b> results per page
+                </a>
+                <div class="dropdown">
+                    {% for n in number_results_list %}
+                        {% if n != results_per_page %}
+                            <a href="{{ path(paginationPath, params|merge({show: n})) }}">{{ n }} per page</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+    {% endspaceless %}
+{% endmacro %}
+{% macro pagination_status(current_page, results_per_page, total) %}
+    {% set remaining = total - ((current_page - 1) * results_per_page) %}
+    {% if remaining > results_per_page %}
+        {% set remaining = results_per_page %}
+    {% endif %}
+    {{ remaining }}
+{% endmacro %}
+{% macro search_bar(id, method, params, ajax, ajaxmethod) %}
+    <div class="search-bar" id="{{ id }}"{% if ajaxmethod != null %}data-method="{{ path(ajaxmethod, params) }}"{% endif %}>
+        <form method="get" {% if method != null %}action="{{ path(method, params) }}"{% endif %}>
+            <input type="text" name="search-{{ id }}" id="search-{{ id }}-input" class="search-input">
+            <button><i class="fa fa-search"></i></button>
+        </form>
+    </div>
+{% endmacro %}

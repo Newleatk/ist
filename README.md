@@ -1,4 +1,4 @@
-# IST
-#### Issue tracking and collaboration platform
-
-Newleatk collaboration and issue tracking platform
+# Project & Issue Manager
+## 1. Summary
+### 1.1 Contributors
+LAUNAY Titouan
